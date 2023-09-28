@@ -7,6 +7,7 @@ cwd = os.getcwd()
 reco_path = cwd + "/hbn_bids/HBN/derivatives/reco/sub-NDARAV554TP2/"
 os.makedirs(reco_path, exist_ok=True)
 afq_path = cwd + "/hbn_bids/HBN/derivatives/afq/sub-NDARAV554TP2/"
+os.makedirs(afq_path, exist_ok=True)
 qsi_dwi_path = cwd + "/hbn_bids/HBN/derivatives/qsiprep/sub-NDARAV554TP2/ses-HBNsiteRU/dwi/"
 
 fetch_hbn(["NDARAV554TP2"], path=cwd + "/hbn_bids")
