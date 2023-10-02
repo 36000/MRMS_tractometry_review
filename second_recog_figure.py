@@ -7,6 +7,9 @@ import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 import nibabel as nib
 from dipy.align import resample
+import os
+
+cwd = os.getcwd()
 
 def bbox(img):
     img = np.sum(img, axis=-1)
@@ -48,7 +51,7 @@ def add_img(x_coord, y_coord, fname, reduct_count=2, subplot_label_ypos=1.0, leg
     subplot_count = subplot_count + 1
     return ax
 
-img = nib.load("hbn_bids/HBN/derivatives/qsiprep/sub-NDARAV554TP2/anat/sub-NDARAV554TP2_desc-preproc_T1w.nii.gz")
+img = nib.load(cwd + "/hbn_bids/HBN/derivatives/qsiprep/sub-NDARAV554TP2/anat/sub-NDARAV554TP2_desc-preproc_T1w.nii.gz")
 data = img.get_fdata()
 value_range = (120, 240)
 slice_actor = actor.slicer(data, img.affine, value_range, opacity=0.8)
@@ -70,7 +73,7 @@ steps = {
     "Mahalanobis": ""
 }
 
-roi_folder = "hbn_bids/HBN/derivatives/afq/sub-NDARAV554TP2/ROIs/"
+roi_folder = cwd + "/hbn_bids/HBN/derivatives/afq/sub-NDARAV554TP2/ROIs/"
 for ii, step in enumerate(steps.keys()):
     scene = window.Scene()
     scene.background([1, 1, 1])
@@ -91,9 +94,9 @@ for ii, step in enumerate(steps.keys()):
             roi0_resampled[:, :, :is_slicepoint] = 0
             roi0_resampled[:, :, is_slicepoint+1:] = 0
             roi_actor0 = actor.contour_from_roi(
-                roi0_resampled, img.affine, [0, 0, 1], 1.0)
+                roi0_resampled, img.affine, [1, 0, 0], 0.5)
             b_actor = actor.line(
-                trk.streamlines, opacity=0.3)
+                trk.streamlines, opacity=0)
             scene.add(roi_actor0)
         else:
             b_actor = actor.line(
@@ -153,7 +156,7 @@ for jj, (bname, slice_frac) in enumerate(rb_bundles.items()):
     b_actor.GetProperty().SetLineWidth(8)
     scene.add(b_actor)
     actual_trk = load_trk(
-            f"hbn_bids/HBN/derivatives/reco/sub-NDARAV554TP2/bundles/sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-RASMM_model-probCSD_algo-reco80_desc-{bname.replace('_','')}_tractography.trk",
+            cwd + f"/hbn_bids/HBN/derivatives/reco/sub-NDARAV554TP2/bundles/sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-RASMM_model-probCSD_algo-reco80_desc-{bname.replace('_','')}_tractography.trk",
             "same")
     b_actor = actor.line(
         actual_trk.streamlines, opacity=1.0)

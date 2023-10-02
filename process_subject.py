@@ -24,19 +24,12 @@ myafq = ParticipantAFQ(
         "save_intermediates": cwd + "/afq_sls/",
         "prob_threshold": 0.10,
         "parallel_segmentation": {"engine": "serial"}})
-myafq.cmd_outputs(cmd="rm", dependent_on="recog")
+#myafq.cmd_outputs(cmd="rm", dependent_on="recog")
 myafq.export_all()
 
 # copy results into reco folder, then clear everything
 # dependent on bundle recognition
 myafq.cmd_outputs(cmd="cp", suffix=reco_path)
-myafq = ParticipantAFQ(
-    qsi_base_path + ".nii.gz",
-    qsi_base_path + ".bval",
-    qsi_base_path + ".bvec",
-    reco_path)
-myafq.cmd_outputs(cmd="rm", dependent_on="recog")
-
 myafq = ParticipantAFQ(
     qsi_base_path + ".nii.gz",
     qsi_base_path + ".bval",
@@ -47,5 +40,6 @@ myafq = ParticipantAFQ(
         "seg_algo": "reco80",
         "save_intermediates": cwd + "/reco_models/",
         "parallel_segmentation": {"engine": "serial"}})
+myafq.cmd_outputs(cmd="rm", dependent_on="recog")
 myafq.export_all()
 
