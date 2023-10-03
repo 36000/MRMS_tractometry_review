@@ -1,4 +1,5 @@
 from fury import actor, window
+from fury.actor import colormap_lookup_table
 import numpy as np
 from dipy.io.streamline import load_trk
 from PIL import Image, ImageChops
@@ -93,11 +94,22 @@ for ii, step in enumerate(steps.keys()):
                 img.affine).get_fdata()
             roi0_resampled[:, :, :is_slicepoint] = 0
             roi0_resampled[:, :, is_slicepoint+1:] = 0
-            roi_actor0 = actor.contour_from_roi(
-                roi0_resampled, img.affine, [1, 0, 0], 0.5)
+            # roi_actor0 = actor.contour_from_roi(
+            #     roi0_resampled, img.affine, [1, 0, 0], 0.5)
+            lut_args = dict(scale_range=(0, 1),
+                            hue_range=(1, 0),
+                            saturation_range=(0, 1),
+                            value_range=(0, 1))
+            slice_actor_roi = actor.slicer(
+                roi0_resampled, img.affine,
+                lookup_colormap=colormap_lookup_table(**lut_args), opacity=0.5)
+            slice_actor_roi.display_extent(
+                0, data.shape[0] - 1,
+                0, data.shape[1] - 1,
+                is_slicepoint, is_slicepoint)
             b_actor = actor.line(
                 trk.streamlines, opacity=0)
-            scene.add(roi_actor0)
+            scene.add(slice_actor_roi)
         else:
             b_actor = actor.line(
                 trk.streamlines, opacity=1.0)
