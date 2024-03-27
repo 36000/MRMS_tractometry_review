@@ -101,4 +101,5 @@ pf = PanelFigure(3, 2, 6, 9, pf_panel_label_kwargs)
 for ii in range(5):
     pf.add_img(f'hcp_figure_{ii}.png', ii%2, ii//2)
 pf.add_img(f'hcp_mega_figure.png', 1, 2)
+pf.fig.set_facecolor((0.4, 0.4, 0.4))
 pf.format_and_save_figure(f"hcp_fig.png", trim_final=True)

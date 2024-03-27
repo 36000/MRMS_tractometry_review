@@ -111,4 +111,5 @@ pf_panel_label_kwargs = dict(
 pf = PanelFigure(3, 2, 6, 9, pf_panel_label_kwargs)
 for ii in range(len(steps)):
     pf.add_img(f'b_figure_{ii}.png', ii%2, ii//2)
+pf.fig.set_facecolor((0.192, 0.192, 0.192))
 pf.format_and_save_figure(f"{bundle}_fig.png", trim_final=True)
