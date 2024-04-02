@@ -40,6 +40,19 @@ bundle_names = [
     "LeftVerticalOccipital", "RightVerticalOccipital",
     "ForcepsMajor"]
 
+def rotate_sagittal(scene):
+    direc = np.fromiter((-0.5, 0, 0), dtype=int)
+    data_shape = np.asarray(img.get_fdata().shape)
+    scene.set_camera(
+        position=(
+            data_shape[0] // 2,
+            data_shape[0] // 4,
+            data_shape[0] // 2),
+        focal_point=direc * data_shape,
+        view_up=(0, 0, 1))
+    scene.dolly(150)
+    return scene
+
 mega_scene = window.Scene()
 mega_scene.background([1, 1, 1])
 mega_scene.add(get_slice_actor(4))
@@ -78,28 +91,33 @@ for ii, bundle in enumerate(bundle_names):
     scene.add(b_actor)
     mega_scene.add(b_actor)
     if "Left" not in bundle:
-        window.record(scene, out_path=f'hcp_figure_{fc}.png', size=record_size)
+        window.record(scene, out_path=f'hcp_figure_{fc}_0.png', size=record_size)
+        window.record(rotate_sagittal(scene), out_path=f'hcp_figure_{fc}_1.png', size=record_size)
         scene.clear()
         fc += 1
         scene = window.Scene()
         scene.background([1, 1, 1])
         scene.add(get_slice_actor(slice_locs[fc]))
-window.record(mega_scene, out_path=f'hcp_mega_figure.png', size=record_size)
+window.record(mega_scene, out_path=f'hcp_mega_figure_0.png', size=record_size)
+window.record(
+    rotate_sagittal(mega_scene), out_path=f'hcp_mega_figure_1.png',
+    size=record_size)
 mega_scene.clear()
 scene.clear()
 
 pf_panel_label_kwargs = dict(
     fontfamily="Helvetica-Bold",
     fontsize="xx-large",
-    color="white",
+    color="black",
     fontweight='bold',
     # fontstyle="normal",
     bbox=dict(
-        facecolor='none',
+        facecolor='white',
         edgecolor='none'))
-pf = PanelFigure(3, 2, 6, 9, pf_panel_label_kwargs)
-for ii in range(5):
-    pf.add_img(f'hcp_figure_{ii}.png', ii%2, ii//2)
-pf.add_img(f'hcp_mega_figure.png', 1, 2)
-pf.fig.set_facecolor((0.4, 0.4, 0.4))
+pf = PanelFigure(3, 4, 12, 9, pf_panel_label_kwargs)
+for jj in range(2):
+    for ii in [0, 2, 4, 1, 3]:
+        pf.add_img(f'hcp_figure_{ii}_{jj}.png', ii%2+jj*2, ii//2)
+    pf.add_img(f'hcp_mega_figure_{jj}.png', 1+2*jj, 2)
+# pf.fig.set_facecolor((0.4, 0.4, 0.4))
 pf.format_and_save_figure(f"hcp_fig.png", trim_final=True)
