@@ -108,16 +108,18 @@ scene.clear()
 pf_panel_label_kwargs = dict(
     fontfamily="Helvetica-Bold",
     fontsize="xx-large",
-    color="black",
+    color="white",
     fontweight='bold',
     # fontstyle="normal",
     bbox=dict(
-        facecolor='white',
+        facecolor='none',
         edgecolor='none'))
-pf = PanelFigure(3, 4, 12, 9, pf_panel_label_kwargs)
-for jj in range(2):
-    for ii in [0, 2, 4, 1, 3]:
-        pf.add_img(f'hcp_figure_{ii}_{jj}.png', ii%2+jj*2, ii//2)
-    pf.add_img(f'hcp_mega_figure_{jj}.png', 1+2*jj, 2)
+pf = PanelFigure(3, 2, 6, 9, pf_panel_label_kwargs)
+for ii in [0, 2, 4, 1, 3]:
+    if ii == 3:
+        pf.add_img(f'hcp_figure_{ii}_1.png', ii%2, ii//2, panel_label_kwargs=dict(color="black"))
+    else:
+        pf.add_img(f'hcp_figure_{ii}_0.png', ii%2, ii//2)
+pf.add_img(f'hcp_mega_figure_0.png', 1, 2)
 # pf.fig.set_facecolor((0.4, 0.4, 0.4))
 pf.format_and_save_figure(f"hcp_fig.png", trim_final=True)
