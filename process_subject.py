@@ -1,6 +1,8 @@
 import os
 from AFQ.api.participant import ParticipantAFQ
+from AFQ.definitions.image import RoiImage
 from dipy.data import fetch_hbn
+import AFQ.api.bundle_dict as abd
 
 
 cwd = os.getcwd()
@@ -17,11 +19,15 @@ myafq = ParticipantAFQ(
     qsi_base_path + ".bval",
     qsi_base_path + ".bvec",
     afq_path,
-    tracking_paras={"n_seeds": 2},
+    bundle_info=abd.OR_bd(),
+    tracking_params={"n_seeds": 6,
+                     "directions": "prob",
+                     "odf_model": "CSD",
+                     "seed_mask": RoiImage()},
     segmentation_params={
         "save_intermediates": cwd + "/afq_sls/",
         "prob_threshold": 0.10,
         "parallel_segmentation": {"engine": "serial"}})
-#myafq.cmd_outputs(cmd="rm", dependent_on="recog")
+myafq.cmd_outputs(cmd="rm", dependent_on="track")
 myafq.export_all()
 

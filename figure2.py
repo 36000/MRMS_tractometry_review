@@ -13,21 +13,22 @@ img = nib.load(cwd + "/hbn_bids/HBN/derivatives/qsiprep/sub-NDARAV554TP2/anat/su
 data = img.get_fdata()
 value_range = (120, 240)
 slice_actor = actor.slicer(data, img.affine, value_range, opacity=0.8)
-is_slicepoint = int(np.round((data.shape[2] * 2) / 5))
+is_slicepoint = int(np.round((data.shape[2] * 7) / 20))
 slice_actor.display_extent(
     0, data.shape[0] - 1,
     0, data.shape[1] - 1,
     is_slicepoint, is_slicepoint)
 
-bundle = "IFO_L"
+bundle = "Right Optic Radiation"
 record_size = (2400, 1800)
 
 steps = {
-    "Prob. Map": "prob_map",  
+    # "Prob. Map": "prob_map",  
     "Cross Mid.": "",
-    "startpoint": "start",
     "endpoint": "end",
     "include": "include",
+    "exclude": "exclude",
+    "pre-Mahal": "",
     "Mahalanobis": ""
 }
 
@@ -35,14 +36,18 @@ roi_folder = cwd + "/hbn_bids/HBN/derivatives/afq/sub-NDARAV554TP2/ROIs/"
 for ii, step in enumerate(steps.keys()):
     scene = window.Scene()
     scene.background([1, 1, 1])
-    trk = load_trk(
-            f"afq_sls/sls_after_{step}_for_{bundle}.trk",
-            "same")
+    if step == "pre-Mahal":
+        trk = load_trk(
+                f"afq_sls/sls_after_exclude_for_{bundle}.trk",
+                "same")
+    else:
+        trk = load_trk(
+                f"afq_sls/sls_after_{step}_for_{bundle}.trk",
+                "same")
     trk.to_rasmm()
-
-    if step not in ["Mahalanobis", "Cross Mid."]:
-        roi0 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-subject_desc-{bundle.replace('_', '')}{steps[step]}0_mask.nii.gz")
-
+    roi0 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-subject_desc-{bundle.replace(' ', '')}include0_mask.nii.gz")
+    if step not in ["Mahalanobis", "Cross Mid.", "pre-Mahal"]:
+        roi0 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-subject_desc-{bundle.replace(' ', '')}{steps[step]}0_mask.nii.gz")
         if step == "Prob. Map":
             roi0_resampled = resample(
                 roi0.get_fdata(),
@@ -67,6 +72,14 @@ for ii, step in enumerate(steps.keys()):
             b_actor = actor.line(
                 trk.streamlines, opacity=0)
             scene.add(slice_actor_roi)
+        elif step == "exclude":
+            for roi_num in range(3):
+                eroi = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-subject_desc-{bundle.replace(' ', '')}{steps[step]}{roi_num}_mask.nii.gz")
+                eroi_actor = actor.contour_from_roi(
+                    eroi.get_fdata(), eroi.affine, [1, 0, 0], 1.0)
+                scene.add(eroi_actor)
+            b_actor = actor.line(
+                trk.streamlines, opacity=1.0)
         else:
             b_actor = actor.line(
                 trk.streamlines, opacity=1.0)
@@ -74,9 +87,14 @@ for ii, step in enumerate(steps.keys()):
                 roi0.get_fdata(), roi0.affine, [0, 0, 1], 1.0)
             scene.add(roi_actor0)
         if step == "include":
-            roi1 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-T1w_desc-preproc_dwi_space-subject_desc-{bundle.replace('_', '')}{steps[step]}1_mask.nii.gz")
+            roi1 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-subject_desc-{bundle.replace(' ', '')}{steps[step]}1_mask.nii.gz")
             roi_actor1 = actor.contour_from_roi(
-                roi1.get_fdata(), roi0.affine, [0, 0, 1], 0.7)
+                roi1.get_fdata(), roi0.affine, [0, 0, 1], 1.0)
+            scene.add(roi_actor1)
+        elif step == "endpoint":
+            roi1 = nib.load(f"{roi_folder}sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_space-subject_desc-{bundle.replace(' ', '')}start0_mask.nii.gz")
+            roi_actor1 = actor.contour_from_roi(
+                roi1.get_fdata(), roi0.affine, [0, 0, 1], 1.0)
             scene.add(roi_actor1)
     else:
         b_actor = actor.line(

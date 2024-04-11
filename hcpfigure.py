@@ -14,6 +14,14 @@ roi_colors_dict = {
     "include": [0, 0, 1],
 }
 
+def get_bundle_color(ii):
+    if ii == 4:
+        return tableau_20[12]
+    elif ii == 5:
+        return tableau_20[13]
+    else:
+        return tableau_20[ii]
+
 background_opacity = 0.6
 sl_opacity = 1.0
 roi_opacity = 0.2
@@ -80,7 +88,7 @@ for ii, bundle in enumerate(bundle_names):
             else:
                 break
     b_actor = actor.line(
-        trk.streamlines, opacity=sl_opacity, colors=tableau_20[ii])
+        trk.streamlines, opacity=sl_opacity, colors=get_bundle_color(ii))
     for roi, roi_color in zip(rois, roi_colors):
         roi_actor = actor.contour_from_roi(
             roi.get_fdata(), roi.affine,
