@@ -1,6 +1,6 @@
 import numpy as np
 from fury import actor, window
-import numpy as np
+import os.path as op
 from dipy.io.streamline import load_trk
 import nibabel as nib
 import os
@@ -11,6 +11,10 @@ import pandas as pd
 import altair as alt
 from PIL import Image, ImageDraw
 import math
+
+import matplotlib.font_manager as fm
+helv = op.join(op.expanduser("~"), "Helvetica-Bold.ttf")
+prop = fm.FontProperties(fname=helv)
 
 cwd = os.getcwd()
 prof = pd.read_csv(cwd + "/hbn_bids/HBN/derivatives/afq/sub-NDARAV554TP2/sub-NDARAV554TP2_ses-HBNsiteRU_acq-64dir_coordsys-RASMM_trkmethod-probCSD_recogmethod-AFQ_desc-profiles_dwi.csv")
@@ -74,29 +78,41 @@ window.record(scene, out_path=f'fig3_1.png', size=record_size)
 
 or_df = prof[prof.tractID=="Left Optic Radiation"]
 alt_font_size=32
+alt_x_axis = alt.X(
+    'nodeID',
+    title="Position along tract (A→P)",
+    axis=alt.Axis(values=[0, 20, 40, 60, 80, 100]))
+alt_y_axis = alt.Y(
+    'dki_fa',
+    title="Fractional Anisotropy (FA)",
+    axis=alt.Axis(values=[0.2, 0.4, 0.6]))
 (
     alt.Chart(or_df).mark_line(opacity=0.3).encode(
-        x=alt.X('nodeID', title="Position along tract (A->P)"),
-        y=alt.Y('dki_fa', title="Fractional Anisotropy (FA)")) + \
+        x=alt_x_axis,
+        y=alt_y_axis) + \
     alt.Chart(or_df).mark_circle(size=100).encode(
-        x=alt.X('nodeID', title="Position along tract (A->P)"),
-        y=alt.Y('dki_fa', title="Fractional Anisotropy (FA)"),
+        x=alt_x_axis,
+        y=alt_y_axis,
         color=alt.Color('dki_fa', scale=alt.Scale(scheme="viridis"), legend=None))
 ).properties(
     width=1000,
     height=500,
 ).configure(
-    font='Helvetica-Bold',
+    font='Helvetica',
     axis=alt.AxisConfig(
         labelFontSize=alt_font_size,
         titleFontSize=alt_font_size),
     title=alt.TitleConfig(fontSize=alt_font_size)
 ).save('fig3_2.png')
 
-pf = PanelFigure(2, 2, 6, 6)
+pf_panel_label_kwargs = dict(
+    fontproperties=prop,
+    fontsize="xx-large",
+    color="white")
+pf = PanelFigure(2, 2, 6, 6, pf_panel_label_kwargs)
 pf.add_img(f'fig3_0.png', 0, 0)
 pf.add_img(f'fig3_1.png', 1, 0)
-pf.add_img(f'fig3_2.png', slice(0, 2, None), 1, panel_label_kwargs=dict(color="black"))
+pf.add_img(f'fig3_2.png', slice(0, 2, None), 1, panel_label_kwargs=dict(color="black"), reduct_count=0)
 pf.format_and_save_figure(f"fig3.png", trim_final=True)
 
 def draw_arrow(image_path, start, end):
@@ -122,5 +138,5 @@ def draw_arrow(image_path, start, end):
 
         img.save(image_path)
 
-draw_arrow("fig3.png", (1146, 642), (1188, 879))
-draw_arrow("fig3.png", (1113, 567), (924, 870))
+draw_arrow("fig3.png", (1146, 642), (1170, 879))
+draw_arrow("fig3.png", (1103, 567), (924, 870))

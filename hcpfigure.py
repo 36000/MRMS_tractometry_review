@@ -113,15 +113,13 @@ window.record(
 mega_scene.clear()
 scene.clear()
 
+import matplotlib.font_manager as fm
+helv = op.join(op.expanduser("~"), "Helvetica-Bold.ttf")
+prop = fm.FontProperties(fname=helv)
 pf_panel_label_kwargs = dict(
-    fontfamily="Helvetica-Bold",
+    fontproperties=prop,
     fontsize="xx-large",
-    color="white",
-    fontweight='bold',
-    # fontstyle="normal",
-    bbox=dict(
-        facecolor='none',
-        edgecolor='none'))
+    color="white")
 pf = PanelFigure(3, 2, 6, 9, pf_panel_label_kwargs)
 for ii in [0, 2, 4, 1, 3]:
     if ii == 3:
